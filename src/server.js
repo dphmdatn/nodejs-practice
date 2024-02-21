@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Updated by trungquandev.com's author on August 17 2023
  * YouTube: https://youtube.com/@trungquandev
@@ -5,28 +6,35 @@
  */
 
 import express from 'express'
-import { mapOrder } from '~/utils/sorts.js'
+import { CONNECT_DB, GET_DB, CLOSE_DB } from '~/config/mongodb'
+import exitHook from 'async-exit-hook'
+import { env } from '~/config/environment'
+const START_SERVER = () => {
+  const app = express()
 
-const app = express()
+  app.get('/', async (req, res) => {
 
-const hostname = 'localhost'
-const port = 8017
+    //check conect thành công
+    console.log(await GET_DB().listCollections().toArray())
+    res.end('<h1>Hello World!</h1><hr>')
+  })
 
-app.get('/', (req, res) => {
-  // Test Absolute import mapOrder
-  console.log(mapOrder(
-    [ { id: 'id-1', name: 'One' },
-      { id: 'id-2', name: 'Two' },
-      { id: 'id-3', name: 'Three' },
-      { id: 'id-4', name: 'Four' },
-      { id: 'id-5', name: 'Five' } ],
-    ['id-5', 'id-4', 'id-2', 'id-3', 'id-1'],
-    'id'
-  ))
-  res.end('<h1>Hello World!</h1><hr>')
-})
+  app.listen(env.APP_HOST, env.APP_PORT, () => {
+    console.log(`I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
+  })
 
-app.listen(port, hostname, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Hello Trung Quan Dev, I am running at ${ hostname }:${ port }/`)
-})
+  //exitHook hỗ trợ exit app và cleanup các thứ các thứ
+  //Ncl bắt tất cả các event dừng server như error, crash, process.exit(0) về 1 mối là exitHook để xử lý
+  exitHook(() => {
+    CLOSE_DB()
+  })
+}
+
+CONNECT_DB()
+  .then(() => console.log('success'))
+  .then(() => START_SERVER())
+  .catch(error => {
+    console.log(error)
+    //Dừng server, exitHook bên trên sẽ bắt đc
+    process.exit(0)
+  })
