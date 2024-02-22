@@ -5,6 +5,7 @@
  */
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -16,19 +17,13 @@ const createNew = async (req, res, next) => {
   })
 
   try {
-    console.log(req.body)
-
     //abortEarly: có tiếp tục validate khi đã phát hiện ra lỗi đầu tiên hay không
     await correctCondition.validateAsync(req.body, { abortEarly: false })
-    // next()
-
-    res.status(StatusCodes.CREATED).json({ mess:'API post list user' })
+    next() //Mang ý nghĩa là dữ liệu được phép đi tiếp xuống tầng tiếp theo để xử lý
   } catch (error) {
-    console.log(error)
-    // console.log(new Error(error))
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      errors: new Error(error).message //message: của Joi
-    })
+    const errorMessage = new Error(error).message //message: của Joi
+    const customMessage = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(customMessage)
   }
 }
 

@@ -7,7 +7,7 @@
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { userValidation } from '~/validations/userValidation'
-
+import { userController } from '~/controllers/userController'
 
 const Router = express.Router()
 
@@ -15,5 +15,5 @@ Router.route('/')
   .get((req, res) => {
     res.status(StatusCodes.OK).json({ mess:'API get list user' })
   })
-  .post(userValidation.createNew)
+  .post(userValidation.createNew, userController.createNew)
 export const userRoutes = Router
