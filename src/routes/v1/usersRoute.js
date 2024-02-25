@@ -16,4 +16,9 @@ Router.route('/')
     res.status(StatusCodes.OK).json({ mess:'API get list user' })
   })
   .post(userValidation.createNew, userController.createNew)
+
+
+Router.route('/:id')
+  .get(userController.getDetail)
+  .put()
 export const userRoutes = Router

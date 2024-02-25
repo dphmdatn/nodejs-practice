@@ -11,7 +11,9 @@ const Router = express.Router()
 Router.get('/status', (req, res) => {
   res.status(StatusCodes.OK).json({ mess:'API v1 ready' })
 })
-
+Router.use('/test', (req, res) => {
+  res.end('<h1>Hello World!</h1><hr>')
+})
 Router.use('/users', userRoutes)
 
 export const APIs_V1 = Router

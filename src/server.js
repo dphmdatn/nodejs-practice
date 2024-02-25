@@ -35,7 +35,6 @@ const START_SERVER = () => {
 }
 
 CONNECT_DB()
-  .then(() => console.log('success'))
   .then(() => START_SERVER())
   .catch(error => {
     console.log(error)
