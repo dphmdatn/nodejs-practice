@@ -4,58 +4,30 @@
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
 import Joi from 'joi'
-import { ObjectId } from 'mongodb'
-import { objectIdPattern } from '~/utils/Validator'
+import { objectId } from '~/utils/Validator'
 import { GET_DB } from '~/config/mongodb'
 // schema & name 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
-  userId: Joi.string().pattern(objectIdPattern.regex).message(objectIdPattern.message), //Id trong mongoDB thuộc kiểu dữ liệu objectId chứ ko phải string
-  userName: Joi.string().required().min(1).max(15).trim().strict(),//3 thg này require client cần send
-  slug: Joi.string().required().min(1).trim().strict(),//3 thg này require client cần send
-  password: Joi.string().required().min(1).max(32).trim().strict(),//3 thg này require client cần send
+  userId: Joi.string().required().pattern(objectId.regex).message(objectId.message), //Id trong mongoDB thuộc kiểu dữ liệu objectId chứ ko phải string
+  userName: Joi.string().required().min(1).max(15).trim().strict(),
+  slug: Joi.string().required().min(1).trim().strict(),
+  password: Joi.string().required().min(1).max(32).trim().strict(),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),//3 thg này require client cần send
+  updatedAt: Joi.date().timestamp('javascript').default(null),//3 thg này require client cần send
+  _destroy: Joi.boolean().default(false)//3 thg này require client cần send
 })
-const validationBeforeCreate = async (data) =>{
-  return await USER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
-}
 const createNew = async (data) => {
   try {
-    const validData = await validationBeforeCreate(data)
-    return await GET_DB().collection(USER_COLLECTION_NAME).insertOne(validData)
+    const createdUser = await GET_DB().collection(USER_COLLECTION_NAME).insertOne(data)
+    return createdUser
   } catch (error) {
     throw new Error(error)
   }
 }
-
-
-const findOneById = async (id) =>{
-  try {
-    return await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id) //Chuyển string sang objectId(nếu ko chuyển về kiểu objectId thì rẽ return null)
-    })
-  } catch (error) {
-    throw new Error(error)
-  }
-}
-
-const getDetail = async (id) =>{
-  try {
-    return await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id) //Chuyển string sang objectId(nếu ko chuyển về kiểu objectId thì rẽ return null)
-    })
-  } catch (error) {
-    throw new Error(error)
-  }
-}
-
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
   createNew,
-  findOneById,
-  getDetail
 }
