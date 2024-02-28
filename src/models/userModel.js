@@ -32,7 +32,7 @@ const createNew = async (data) => {
 }
 
 
-const findOneById = async (id) =>{
+const findOneById = async (id) => {
   try {
     return await GET_DB().collection(USER_COLLECTION_NAME).findOne({
       _id: new ObjectId(id) //Chuyển string sang objectId(nếu ko chuyển về kiểu objectId thì rẽ return null)
@@ -42,11 +42,33 @@ const findOneById = async (id) =>{
   }
 }
 
-const getDetail = async (id) =>{
+const getDetail = async (id) => {
   try {
-    return await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id) //Chuyển string sang objectId(nếu ko chuyển về kiểu objectId thì rẽ return null)
-    })
+    // return await GET_DB().collection(USER_COLLECTION_NAME).findOne({
+    //   _id: new ObjectId(id) //Chuyển string sang objectId(nếu ko chuyển về kiểu objectId thì rẽ return null)
+    // })
+
+    //vd: lấy ra thông tin của user trong 2 collection user_address, user_payment
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).aggregate([
+      { $match: { //match: tìm chính xác, bản ghi có id và destroy như kia
+        _id: new ObjectId(id),
+        _destroy:false
+      } },
+      { $lookup: { //tìm tới collection
+        from: 'user_address',        //với collection name user_address
+        localField: '_id',        // tên cột id user ở collection hiện tại (users) (khoá chính)
+        foreignField:'userId',    // tên cột id ở collection user_address (khoá phụ)
+        as:'address'          //gán vào tên key address
+      } },
+      { $lookup: {
+        from: 'user_payment',        //với collection name user_payment
+        localField: '_id',        // tên cột id user ở collection hiện tại (users) (khoá chính)
+        foreignField:'userId',    // tên cột id ở collection user_payment (khoá phụ)
+        as:'payment'            //gán vào tên key payment
+      } }
+    ]).toArray() //test thử lại nếu ko có toArray
+
+    return result  //test thử lại nếu ko có [0]
   } catch (error) {
     throw new Error(error)
   }

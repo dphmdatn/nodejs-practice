@@ -8,9 +8,11 @@
 import express from 'express'
 import { CONNECT_DB, GET_DB, CLOSE_DB } from '~/config/mongodb'
 import exitHook from 'async-exit-hook'
+// import cors from 'cors'
 import { env } from '~/config/environment'
 import { APIs_V1 } from './routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
+import { corsOptions } from './config/cors'
 
 
 const START_SERVER = () => {
@@ -18,7 +20,7 @@ const START_SERVER = () => {
 
   // enable req.body json data
   app.use(express.json())
-
+  // app.use(cors(corsOptions))
   app.use('/v1', APIs_V1)
 
   //middleware xử lý lỗi tập trung, bất cứ lỗi nào đều đc tập trung ở đây
