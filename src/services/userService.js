@@ -2,7 +2,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
-
+import {cloneDeep} from 'lodash'
 
 
 const createNew = async (reqBody) => {
@@ -30,6 +30,9 @@ const getDetail = async (userId) => {
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy user')
     }
+
+    const resUser = cloneDeep(user)
+    
     //Trả về cho service
     return await user
   } catch (error) {

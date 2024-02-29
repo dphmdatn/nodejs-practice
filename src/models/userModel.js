@@ -56,18 +56,18 @@ const getDetail = async (id) => {
       { $lookup: { //tìm tới collection
         from: 'user_address',        //với collection name user_address
         localField: '_id',        // tên cột id user ở collection hiện tại (users) (khoá chính)
-        foreignField:'userId',    // tên cột id ở collection user_address (khoá phụ)
+        foreignField:'user_id',    // tên cột id ở collection user_address (khoá phụ)
         as:'address'          //gán vào tên key address
       } },
       { $lookup: {
         from: 'user_payment',        //với collection name user_payment
         localField: '_id',        // tên cột id user ở collection hiện tại (users) (khoá chính)
-        foreignField:'userId',    // tên cột id ở collection user_payment (khoá phụ)
+        foreignField:'user_id',    // tên cột id ở collection user_payment (khoá phụ)
         as:'payment'            //gán vào tên key payment
       } }
     ]).toArray() //test thử lại nếu ko có toArray
 
-    return result  //test thử lại nếu ko có [0]
+    return result[0] || null  //test thử lại nếu ko có [0]
   } catch (error) {
     throw new Error(error)
   }
